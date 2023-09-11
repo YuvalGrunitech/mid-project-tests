@@ -5,7 +5,7 @@ steps:
   # args: ['build', '-t', 'gcr.io/chat-app-project-397612/chat-app-img:${SHORT_SHA}','-f','thin.dockerfile', '.']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['run','-d','--network','cloudbuild','--name' ,'chat-app','me-west1-docker.pkg.dev/grunitech-mid-project/yuval-chat-app/chat-app-img:0.2.1']
+  args: ['run','-d','-p','8000:5000' ,'chat-app','me-west1-docker.pkg.dev/grunitech-mid-project/yuval-chat-app/chat-app-img:0.2.1']
 
 - name: 'gcr.io/cloud-builders/docker'
   args: ['ps','-a']
