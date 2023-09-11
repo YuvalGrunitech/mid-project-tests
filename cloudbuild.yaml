@@ -1,0 +1,58 @@
+steps:
+  
+  # Tests should come here if were made
+# - name: 'gcr.io/cloud-builders/docker'
+  # args: ['build', '-t', 'gcr.io/chat-app-project-397612/chat-app-img:${SHORT_SHA}','-f','thin.dockerfile', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['run','-d','-p','8000:5000','--network','cloudbuild','--name' ,'chat-app','gcr.io/chat-app-project-397612/chat-app-img:0.2.1']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['ps','-a']
+
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['network','ls']
+
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: "bash"
+  args:
+    - "-c"
+    - |
+      sleep 10
+
+- name: 'curlimages/curl'
+  args: ['http://127.0.0.1:8000/health']
+
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: "bash"
+  args:
+    - "-c"
+    - |
+      max_retries=10  # Adjust the number of retries as needed
+      for ((i=0; i<max_retries; i++)); do
+        RESPONSE=$(curl -i http://step_0:8000/health | grep HTTP | cut -d' ' -f2)
+        if [ "200" == "$$RESPONSE" ]; then
+          echo "Application is up and running!"
+          break
+        fi
+        echo "Retrying in 5 seconds..."
+        sleep 5
+      done
+      #  if [ "200" != "$$RESPONSE" ]; then
+      #  exit 1
+      #  fi
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['ps','-a']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['network','ls']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['rm', '-f', 'chat-app']
+
+
+# # Docker push to Google Artifact Registry
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: ['push',  'gcr.io/chat-app-project-397612/chat-app-img:${SHORT_SHA}']
